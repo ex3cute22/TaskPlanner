@@ -13,10 +13,13 @@
 		402B38EB254046DF0038E1B7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 402B38E9254046DF0038E1B7 /* Main.storyboard */; };
 		402B38ED254046E70038E1B7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 402B38EC254046E70038E1B7 /* Assets.xcassets */; };
 		402B38F0254046E70038E1B7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 402B38EE254046E70038E1B7 /* LaunchScreen.storyboard */; };
+		402B38F925404F540038E1B7 /* AddViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402B38F825404F540038E1B7 /* AddViewController.swift */; };
+		407DBE4C254BFFCF0034B311 /* TaskTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407DBE4A254BFFCF0034B311 /* TaskTableViewCell.swift */; };
+		40AAE6BB25448B28007744A6 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40AAE6BA25448B27007744A6 /* EditViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		402B38E0254046DF0038E1B7 /* PlannerOfTasks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlannerOfTasks.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		402B38E0254046DF0038E1B7 /* TaskPlanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskPlanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		402B38E3254046DF0038E1B7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		402B38E5254046DF0038E1B7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		402B38E7254046DF0038E1B7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -24,6 +27,9 @@
 		402B38EC254046E70038E1B7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		402B38EF254046E70038E1B7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		402B38F1254046E70038E1B7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		402B38F825404F540038E1B7 /* AddViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddViewController.swift; sourceTree = "<group>"; };
+		407DBE4A254BFFCF0034B311 /* TaskTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskTableViewCell.swift; sourceTree = "<group>"; };
+		40AAE6BA25448B27007744A6 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +54,7 @@
 		402B38E1254046DF0038E1B7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				402B38E0254046DF0038E1B7 /* PlannerOfTasks.app */,
+				402B38E0254046DF0038E1B7 /* TaskPlanner.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -63,6 +69,9 @@
 				402B38EC254046E70038E1B7 /* Assets.xcassets */,
 				402B38EE254046E70038E1B7 /* LaunchScreen.storyboard */,
 				402B38F1254046E70038E1B7 /* Info.plist */,
+				402B38F825404F540038E1B7 /* AddViewController.swift */,
+				40AAE6BA25448B27007744A6 /* EditViewController.swift */,
+				407DBE4A254BFFCF0034B311 /* TaskTableViewCell.swift */,
 			);
 			path = PlannerOfTasks;
 			sourceTree = "<group>";
@@ -70,9 +79,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		402B38DF254046DF0038E1B7 /* PlannerOfTasks */ = {
+		402B38DF254046DF0038E1B7 /* TaskPlanner */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 402B38F4254046E70038E1B7 /* Build configuration list for PBXNativeTarget "PlannerOfTasks" */;
+			buildConfigurationList = 402B38F4254046E70038E1B7 /* Build configuration list for PBXNativeTarget "TaskPlanner" */;
 			buildPhases = (
 				402B38DC254046DF0038E1B7 /* Sources */,
 				402B38DD254046DF0038E1B7 /* Frameworks */,
@@ -82,9 +91,9 @@
 			);
 			dependencies = (
 			);
-			name = PlannerOfTasks;
+			name = TaskPlanner;
 			productName = PlannerOfTasks;
-			productReference = 402B38E0254046DF0038E1B7 /* PlannerOfTasks.app */;
+			productReference = 402B38E0254046DF0038E1B7 /* TaskPlanner.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -101,7 +110,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 402B38DB254046DF0038E1B7 /* Build configuration list for PBXProject "PlannerOfTasks" */;
+			buildConfigurationList = 402B38DB254046DF0038E1B7 /* Build configuration list for PBXProject "TaskPlanner" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -114,7 +123,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				402B38DF254046DF0038E1B7 /* PlannerOfTasks */,
+				402B38DF254046DF0038E1B7 /* TaskPlanner */,
 			);
 		};
 /* End PBXProject section */
@@ -137,8 +146,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40AAE6BB25448B28007744A6 /* EditViewController.swift in Sources */,
 				402B38E8254046DF0038E1B7 /* ViewController.swift in Sources */,
+				407DBE4C254BFFCF0034B311 /* TaskTableViewCell.swift in Sources */,
 				402B38E4254046DF0038E1B7 /* AppDelegate.swift in Sources */,
+				402B38F925404F540038E1B7 /* AddViewController.swift in Sources */,
 				402B38E6254046DF0038E1B7 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -322,7 +334,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		402B38DB254046DF0038E1B7 /* Build configuration list for PBXProject "PlannerOfTasks" */ = {
+		402B38DB254046DF0038E1B7 /* Build configuration list for PBXProject "TaskPlanner" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				402B38F2254046E70038E1B7 /* Debug */,
@@ -331,7 +343,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		402B38F4254046E70038E1B7 /* Build configuration list for PBXNativeTarget "PlannerOfTasks" */ = {
+		402B38F4254046E70038E1B7 /* Build configuration list for PBXNativeTarget "TaskPlanner" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				402B38F5254046E70038E1B7 /* Debug */,
