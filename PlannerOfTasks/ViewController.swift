@@ -34,8 +34,9 @@ class ViewController: UIViewController {
     }
     
     private var filteredModels = [Task]() //Массив отфильтрованный по поиску
-    private var categoryModels = [Task]() //Массив по выбранным категориям
-    
+//    private var categoryModels = [Task]() //Массив по выбранным категориям
+    private var categoryNames: [String] = []
+    private var CategoryUnical: [String] = []
     private var searchBarIsEmpty: Bool{
         guard let text = search.searchBar.text else {
             return false
@@ -52,8 +53,26 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 //        UserDefaults.standard.removeObject(forKey: "TaskDataKey")
 //        UserDefaults.standard.synchronize()
+        print("Start")
         table.delegate = self
         table.dataSource = self
+        for i in 0...models.count-1{
+            if models[i].date < Date() && models[i].status != "Выполнено"{
+                models[i].status = "Просрочено"
+            }
+        }
+        models.forEach {
+            if $0.date < Date(){
+                $0.status = "Просрочено"
+            }
+            print($0.status)
+        }
+        print(models[0].status)
+//        models.forEach {
+//            categoryNames.append($0.category)
+//        }
+         CategoryUnical = Array(Set(categoryNames))
+        print(CategoryUnical)
         models.sort(by: {$0.date < $1.date}) //сортировка по дате
         models.sort(by: {$0.status == "В процессе" && $1.status != "В процессе"}) //сортировка по статусу
         self.navigationController?.navigationBar.prefersLargeTitles = true
@@ -69,6 +88,15 @@ class ViewController: UIViewController {
 
 //Обновление таблицы
     @objc func updateTable(){
+//        models.forEach {
+//            if $0.date < Date(){
+//                $0.status = "Просрочено"
+//            }
+//        }
+        models.forEach {
+            categoryNames.append($0.category)
+        }
+         CategoryUnical = Array(Set(categoryNames))
         models.sort(by: {$0.date < $1.date}) //сортировка по дате
         models.sort(by: {$0.status == "В процессе" && $1.status != "В процессе"}) //сортировка по статусу
         table.reloadData()
@@ -105,7 +133,16 @@ class ViewController: UIViewController {
             }
         navigationController?.pushViewController(vc, animated: true)
     }
-    
+//Категории
+    @IBAction func tapCategory(){
+        guard let vc = storyboard?.instantiateViewController(identifier: "category") as? CategoryViewController else{
+            return
+        }
+        vc.title = "Категории"
+        vc.arrCategory = CategoryUnical
+        vc.arrTask = models
+        navigationController?.pushViewController(vc, animated: true)
+    }
 //Проверка уведомления
     @IBAction func tapCheck(){
         
@@ -136,32 +173,6 @@ class ViewController: UIViewController {
         })
     }
     
-//Свайп слева (Выполнить задачу)
-        func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-            let swipeDone = UIContextualAction(style: .normal, title: "Выполнить"){(action, view, success) in
-                self.models[indexPath.row].status = "Выполнено"
-                
-                self.table.reloadData()
-            }
-            swipeDone.image = #imageLiteral(resourceName: "logo")
-            swipeDone.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-                
-            return UISwipeActionsConfiguration(actions: [swipeDone])
-        }
-    
-//Свайп справа (Удалить задачу)
-        func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-            let swipeDelete = UIContextualAction(style: .destructive, title: "Удалить"){(action, view, success) in
-                let alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите удалить данную задачу?", preferredStyle: .actionSheet)
-                alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { (action) in
-                    self.models.remove(at: indexPath.row)
-                    self.table.reloadData()
-                })
-                alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-                }
-            return UISwipeActionsConfiguration(actions: [swipeDelete])
-        }
 }
 
 extension ViewController: UITableViewDelegate{
@@ -188,6 +199,7 @@ extension ViewController: UITableViewDelegate{
         vc.author = models[indexPath.row].author
         vc.date = models[indexPath.row].date
         vc.status = models[indexPath.row].status
+        print(models[indexPath.row].status)
         navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -242,6 +254,41 @@ extension ViewController: UITableViewDataSource{
         
         return cell
     }
+    
+//Свайп слева (Выполнить задачу)
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+            let swipeDone = UIContextualAction(style: .normal, title: "Выполнить"){(action, view, success) in
+                let alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите выполнить задачу?", preferredStyle: .actionSheet)
+                alert.addAction(UIAlertAction(title: "Выполнить", style: .default) { (action) in
+                    var status = self.models[indexPath.row].status
+                    print(status)
+                    status = "Выполнено"
+                    print(status)
+                    self.models[indexPath.row].status = status
+                    print(self.models[indexPath.row].status)
+                    self.table.reloadData()
+                })
+                alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                }
+                swipeDone.image = #imageLiteral(resourceName: "logo")
+                swipeDone.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+            return UISwipeActionsConfiguration(actions: [swipeDone])
+        }
+
+//Свайп справа (Удалить задачу)
+        func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+            let swipeDelete = UIContextualAction(style: .destructive, title: "Удалить"){(action, view, success) in
+                let alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите удалить данную задачу?", preferredStyle: .actionSheet)
+                alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { (action) in
+                    self.models.remove(at: indexPath.row)
+                    self.table.reloadData()
+                })
+                alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                }
+            return UISwipeActionsConfiguration(actions: [swipeDelete])
+        }
     
 //Размер ячейки
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

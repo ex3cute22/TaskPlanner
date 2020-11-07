@@ -63,6 +63,9 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         let dateCurrent = Date()
         let diffDate = (date.timeIntervalSince(dateCurrent)) / 60 / 60 / 24
         let roundDiffDate = Int(round(diffDate))
+        if roundDiffDate < 0{
+            status = "Просрочено"
+        }
         if status == "В процессе"{
             timeLeft.text = "Осталось дней: \(roundDiffDate)"
         }
