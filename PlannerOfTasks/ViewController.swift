@@ -32,7 +32,7 @@ class ViewController: UIViewController {
             }
         }
     }
-    
+    var change = [Task]()
     private var filteredModels = [Task]() //Массив отфильтрованный по поиску
 //    private var categoryModels = [Task]() //Массив по выбранным категориям
     private var categoryNames: [String] = []
@@ -53,28 +53,26 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 //        UserDefaults.standard.removeObject(forKey: "TaskDataKey")
 //        UserDefaults.standard.synchronize()
-        print("Start")
         table.delegate = self
         table.dataSource = self
-        for i in 0...models.count-1{
-            if models[i].date < Date() && models[i].status != "Выполнено"{
-                models[i].status = "Просрочено"
-            }
-        }
         models.forEach {
             if $0.date < Date(){
                 $0.status = "Просрочено"
             }
+            change.append($0)
             print($0.status)
         }
-        print(models[0].status)
-//        models.forEach {
-//            categoryNames.append($0.category)
-//        }
+        models = change
+        change.removeAll()
+        print(change)
+        models.forEach {
+            categoryNames.append($0.category)
+        }
          CategoryUnical = Array(Set(categoryNames))
         print(CategoryUnical)
         models.sort(by: {$0.date < $1.date}) //сортировка по дате
         models.sort(by: {$0.status == "В процессе" && $1.status != "В процессе"}) //сортировка по статусу
+        
         self.navigationController?.navigationBar.prefersLargeTitles = true
         self.navigationController?.navigationItem.largeTitleDisplayMode = .always
         search.searchResultsUpdater = self
@@ -82,17 +80,22 @@ class ViewController: UIViewController {
         self.navigationItem.searchController = search
         definesPresentationContext = true
         refreshControl.tintColor = .systemBlue
-        refreshControl.addTarget(self, action: #selector(updateTable), for: .valueChanged)
+        refreshControl.addTarget(self, action: #selector(updateTable), for: .allEvents)
         table.refreshControl = refreshControl
     }
 
 //Обновление таблицы
     @objc func updateTable(){
-//        models.forEach {
-//            if $0.date < Date(){
-//                $0.status = "Просрочено"
-//            }
-//        }
+        models.forEach {
+            if $0.date < Date(){
+                $0.status = "Просрочено"
+            }
+            change.append($0)
+            print($0.status)
+        }
+        models = change
+        change.removeAll()
+        categoryNames.removeAll()
         models.forEach {
             categoryNames.append($0.category)
         }
@@ -192,6 +195,9 @@ extension ViewController: UITableViewDelegate{
                 self.table.reloadData()
             }
         }
+//        if models[indexPath.row].date < Date(){
+//            models[indexPath.row].status = "Просрочено"
+//        }
         vc.name = models[indexPath.row].name
         vc.category = models[indexPath.row].category
         vc.target = models[indexPath.row].target
@@ -222,28 +228,33 @@ extension ViewController: UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) ->
     UITableViewCell {
        
+        if !change.isEmpty{
+            models = change
+        }
         let cell = tableView.dequeueReusableCell(withIdentifier: idCell) as! TaskTableViewCell
         var cellTask: Task
         
-        if isFiltering{
-            cellTask = filteredModels[indexPath.row]
-        }
-        else{
-            cellTask = models[indexPath.row]
-        }
-        let date = cellTask.date
+//        if isFiltering{
+//            cellTask = filteredModels[indexPath.row]
+//        }
+//        else{
+//            cellTask = models[indexPath.row]
+//        }
+        cellTask = models[indexPath.row]
+        let date = models[indexPath.row].date
         if date < Date(){
-            cellTask.status = "Просрочено"
+            models[indexPath.row].status = "Просрочено"
         }
         cell.targetLabel?.text = cellTask.target
-        let status = cellTask.status
-        if  status == "Просрочено"{
+//        let status = models[indexPath.row].status
+//        print(status)
+        if models[indexPath.row].status == "Просрочено"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1)
         }
-        else if status == "Выполнено"{
+        else if models[indexPath.row].status == "Выполнено"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
         }
-        else if status == "В процессе"{
+        else if models[indexPath.row].status == "В процессе"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
         }
         cell.titleLabel?.text =  cellTask.name
@@ -257,23 +268,48 @@ extension ViewController: UITableViewDataSource{
     
 //Свайп слева (Выполнить задачу)
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-            let swipeDone = UIContextualAction(style: .normal, title: "Выполнить"){(action, view, success) in
-                let alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите выполнить задачу?", preferredStyle: .actionSheet)
-                alert.addAction(UIAlertAction(title: "Выполнить", style: .default) { (action) in
-                    var status = self.models[indexPath.row].status
-                    print(status)
+        var status = self.models[indexPath.row].status
+        if status != "Просрочено"{
+                let swipeDone = UIContextualAction(style: .normal, title: "Выполнить"){(action, view, success) in
+                
+                var alert = UIAlertController()
+                
+                print(status)
+                if status == "В процессе"{
                     status = "Выполнено"
-                    print(status)
-                    self.models[indexPath.row].status = status
-                    print(self.models[indexPath.row].status)
-                    self.table.reloadData()
-                })
+                    alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите выполнить задачу?", preferredStyle: .actionSheet)
+                    alert.addAction(UIAlertAction(title: "Выполнить", style: .default) { (action) in
+                        print(status)
+                        self.change = self.models
+                        self.change[indexPath.row].status = status
+                        print(self.change[indexPath.row].status)
+                        self.table.reloadData()
+                    })
+                }else if status == "Выполнено"{
+                    status = "В процессе"
+                    alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите продолжить выполнение задачи?", preferredStyle: .actionSheet)
+                    alert.addAction(UIAlertAction(title: "Продолжить", style: .default) { (action) in
+                        print(status)
+                        self.change = self.models
+                        self.change[indexPath.row].status = status
+                        print(self.change[indexPath.row].status)
+                        self.table.reloadData()
+                    })
+                }
                 alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
                 self.present(alert, animated: true, completion: nil)
                 }
+        //swipeDone.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+                
+                if self.models[indexPath.row].status == "В процессе"{
+                    swipeDone.backgroundColor = .systemGreen
+                }
                 swipeDone.image = #imageLiteral(resourceName: "logo")
-                swipeDone.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-            return UISwipeActionsConfiguration(actions: [swipeDone])
+                
+            return UISwipeActionsConfiguration(actions: [swipeDone])}
+        else {
+            return nil
+        }
         }
 
 //Свайп справа (Удалить задачу)

@@ -51,15 +51,7 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         toolsField.text = tools
         authorField.text = author
         datePicker.date = date
-        if status == "Выполнено"{
-            statusControl.selectedSegmentIndex = 0
-        }
-        else if status == "В процессе"{
-            statusControl.selectedSegmentIndex = 1
-        }
-        else if status == "Просрочено"{
-            statusControl.selectedSegmentIndex = 2
-        }
+        
         let dateCurrent = Date()
         let diffDate = (date.timeIntervalSince(dateCurrent)) / 60 / 60 / 24
         let roundDiffDate = Int(round(diffDate))
@@ -74,6 +66,15 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         }
         else if status == "Выполнено"{
             timeLeft.text = "Задача выполнена!"
+        }
+        if status == "Выполнено"{
+            statusControl.selectedSegmentIndex = 0
+        }
+        else if status == "В процессе"{
+            statusControl.selectedSegmentIndex = 1
+        }
+        else if status == "Просрочено"{
+            statusControl.selectedSegmentIndex = 2
         }
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Сохранить",style: .done, target: self, action: #selector(saveTask))
     }

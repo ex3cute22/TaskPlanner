@@ -27,7 +27,7 @@ class CurrentCategoryViewController: UIViewController {
                 print($0.name)
             }
         }
-        // Do any additional setup after loading the view.
+        
     }
     
 
@@ -41,7 +41,7 @@ extension CurrentCategoryViewController: UITableViewDelegate{
         vc.navigationItem.largeTitleDisplayMode = .never
         vc.completion = {name, category, target, tools, author, date, status in
             DispatchQueue.main.async {
-                self.navigationController?.popToRootViewController(animated: true)
+                self.navigationController?.popViewController(animated: true)
                 let EditTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
                 print(EditTask.name)
                 self.arrayTaskCategory[indexPath.section] = EditTask
@@ -55,7 +55,7 @@ extension CurrentCategoryViewController: UITableViewDelegate{
         vc.author = arrayTaskCategory[indexPath.section].author
         vc.date = arrayTaskCategory[indexPath.section].date
         vc.status = arrayTaskCategory[indexPath.section].status
-        self.navigationController?.popViewController(animated: false)
+//        self.navigationController?.popViewController(animated: false)
         navigationController?.pushViewController(vc, animated: true)
     }
 }
