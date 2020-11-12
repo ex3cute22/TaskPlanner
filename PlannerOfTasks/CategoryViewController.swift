@@ -12,6 +12,8 @@ class CategoryViewController: UIViewController{
     @IBOutlet var table: UITableView!
     var arrCategory: [String] = []
     var arrTask = [Task]()
+    public var completion: (([Task]) -> Void)?
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,6 +29,17 @@ extension CategoryViewController: UITableViewDelegate{
         table.deselectRow(at: indexPath, animated: true)
         guard let vc = storyboard?.instantiateViewController(identifier: "currentCategory") as? CurrentCategoryViewController else{
             return
+        }
+        vc.Completion = {arrayTask in
+            DispatchQueue.main.async {
+                self.navigationController?.popViewController(animated: true)
+                self.arrTask = arrayTask
+                self.arrTask.forEach{
+                    print($0)
+                    
+                }
+                self.table.reloadData()
+            }
         }
         vc.title = arrCategory[indexPath.section]
         vc.navigationItem.backBarButtonItem?.title = "Категории"

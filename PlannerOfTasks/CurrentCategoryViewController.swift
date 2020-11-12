@@ -13,20 +13,33 @@ class CurrentCategoryViewController: UIViewController {
     
     var arrayTask = [Task]()
     var arrayTaskCategory = [Task]()
+    var indexArr: [Int] = []
     var category = ""
-    
+    public var Completion: (([Task]) -> Void)?
+//    weak var modelsDelegate: ModelsDelegate?
+
     override func viewDidLoad() {
 //        navigationItem.backBarButtonItem?.title = "Категории"
 //        self.navigationController!.navigationBar.topItem!.title = "Категории"
         super.viewDidLoad()
         table.dataSource = self
         table.delegate = self
-        arrayTask.forEach {
-            if $0.category == category{
-                arrayTaskCategory.append($0)
-                print($0.name)
+        indexArr.removeAll()
+        arrayTaskCategory.removeAll()
+        if !arrayTask.isEmpty{
+            for i in 0...arrayTask.count-1{
+            if arrayTask[i].category == category{
+                arrayTaskCategory.append(arrayTask[i])
+                indexArr.append(i)
             }
-        }
+            }}
+        print(indexArr)
+//        arrayTask.forEach {
+//            if $0.category == category{
+//                arrayTaskCategory.append($0)
+//                print($0.name)
+//            }
+//        }
         
     }
     
@@ -44,10 +57,13 @@ extension CurrentCategoryViewController: UITableViewDelegate{
                 self.navigationController?.popViewController(animated: true)
                 let EditTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
                 print(EditTask.name)
+//                self.modelsDelegate?.update(array: self.arrayTask)
+                self.arrayTask[self.indexArr[indexPath.section]] = EditTask
                 self.arrayTaskCategory[indexPath.section] = EditTask
                 self.table.reloadData()
             }
         }
+//        print(arrayTask[17].name)
         vc.name = arrayTaskCategory[indexPath.section].name
         vc.category = arrayTaskCategory[indexPath.section].category
         vc.target = arrayTaskCategory[indexPath.section].target
@@ -55,7 +71,6 @@ extension CurrentCategoryViewController: UITableViewDelegate{
         vc.author = arrayTaskCategory[indexPath.section].author
         vc.date = arrayTaskCategory[indexPath.section].date
         vc.status = arrayTaskCategory[indexPath.section].status
-//        self.navigationController?.popViewController(animated: false)
         navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -93,7 +108,6 @@ extension CurrentCategoryViewController: UITableViewDataSource{
         format.locale = Locale(identifier: "ru_RU")
         format.dateFormat = "dd MMMM YYYY"
         cell.subTitleLabel?.text = format.string(from: date)
-        
         return cell
     }
 //Размер ячейки

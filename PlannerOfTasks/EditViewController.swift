@@ -39,8 +39,8 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var tools: String = ""
     var author: String = ""
     var date: Date = Date()
-    
     var status: String = ""
+    
     public var completion: ((String, String, String, String, String, Date, String) -> Void)?
     
     override func viewDidLoad() {
@@ -104,6 +104,7 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
            let authorText = authorField.text, !authorText.isEmpty{
             
             let targetDate = datePicker.date
+
             completion?(nameText, categoryText, targetText, toolsText, authorText, targetDate, status)
         }
     }

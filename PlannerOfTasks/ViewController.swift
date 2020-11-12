@@ -8,6 +8,10 @@
 import UIKit
 import UserNotifications
 
+protocol ModelsDelegate: class {
+    func update(array: [Task])
+}
+
 class ViewController: UIViewController {
     
     @IBOutlet var table: UITableView!
@@ -32,7 +36,7 @@ class ViewController: UIViewController {
             }
         }
     }
-    var change = [Task]()
+    var change = [Task]() //Массив изменений основного массива models
     private var filteredModels = [Task]() //Массив отфильтрованный по поиску
 //    private var categoryModels = [Task]() //Массив по выбранным категориям
     private var categoryNames: [String] = []
@@ -55,6 +59,8 @@ class ViewController: UIViewController {
 //        UserDefaults.standard.synchronize()
         table.delegate = self
         table.dataSource = self
+        change.removeAll()
+        //проверка срока выполнения задачи
         models.forEach {
             if $0.date < Date(){
                 $0.status = "Просрочено"
@@ -63,12 +69,11 @@ class ViewController: UIViewController {
             print($0.status)
         }
         models = change
-        change.removeAll()
-        print(change)
+        //заполнение массива категорий
         models.forEach {
             categoryNames.append($0.category)
         }
-         CategoryUnical = Array(Set(categoryNames))
+         CategoryUnical = Array(Set(categoryNames)) //"уникальный" массив категорий
         print(CategoryUnical)
         models.sort(by: {$0.date < $1.date}) //сортировка по дате
         models.sort(by: {$0.status == "В процессе" && $1.status != "В процессе"}) //сортировка по статусу
@@ -93,7 +98,6 @@ class ViewController: UIViewController {
             change.append($0)
             print($0.status)
         }
-        models = change
         change.removeAll()
         categoryNames.removeAll()
         models.forEach {
@@ -140,6 +144,13 @@ class ViewController: UIViewController {
     @IBAction func tapCategory(){
         guard let vc = storyboard?.instantiateViewController(identifier: "category") as? CategoryViewController else{
             return
+        }
+        vc.completion = {modelsTask in
+            DispatchQueue.main.async {
+                self.navigationController?.popViewController(animated: true)
+//                self.models = modelsTask
+                self.table.reloadData()
+            }
         }
         vc.title = "Категории"
         vc.arrCategory = CategoryUnical
@@ -231,6 +242,7 @@ extension ViewController: UITableViewDataSource{
         if !change.isEmpty{
             models = change
         }
+        change.removeAll()
         let cell = tableView.dequeueReusableCell(withIdentifier: idCell) as! TaskTableViewCell
         var cellTask: Task
         
@@ -378,42 +390,8 @@ extension ViewController: UISearchResultsUpdating{
     }
 }
 
-
-
-
-
-
-
-
-//    init(){
-//        name = ""
-//        category = ""
-//        target = ""
-//        tools = ""
-//        author = ""
-//        date = Date()
-//        status = false
-//        identifier = "ID_"
-//    }
-
-//    func encode(with coder: NSCoder) {
-//        coder.encode(name, forKey: "NameKey")
-//        coder.encode(category, forKey: "CategoryKey")
-//        coder.encode(target, forKey: "TargetKey")
-//        coder.encode(tools, forKey: "ToolsKey")
-//        coder.encode(author, forKey: "AuthorKey")
-//        coder.encode(date, forKey: "DateKey")
-//        coder.encode(status, forKey: "StatusKey" )
-//        coder.encode(identifier, forKey: "IdentifierKey")
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        name = coder.decodeObject(forKey: "NameKey") as? String ?? ""
-//        category = coder.decodeObject(forKey: "CategoryKey") as? String ?? ""
-//        target = coder.decodeObject(forKey: "TargetKey") as? String ?? ""
-//        tools = coder.decodeObject(forKey: "ToolsKey") as? String ?? ""
-//        author = coder.decodeObject(forKey: "AuthorKey") as? String ?? ""
-//        date = coder.decodeObject(forKey: "DateKey") as? Date ?? Date()
-//        status = coder.decodeObject(forKey: "StatusKey") as? Bool ?? false
-//        identifier = coder.decodeObject(forKey: "IdentifierKey") as? String ?? ""
-//    }
+extension ViewController: ModelsDelegate{
+    func update(array: [Task]) {
+        models = array
+    }
+}
