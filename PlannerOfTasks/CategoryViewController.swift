@@ -7,12 +7,17 @@
 
 import UIKit
 
+protocol TaskDelegate: class{
+    func updateTask(array: [Task])
+}
+
 class CategoryViewController: UIViewController{
     
     @IBOutlet var table: UITableView!
     var arrCategory: [String] = []
     var arrTask = [Task]()
     public var completion: (([Task]) -> Void)?
+    weak var modelsDelegate: ModelsDelegate?
 
     
     override func viewDidLoad() {
@@ -30,17 +35,24 @@ extension CategoryViewController: UITableViewDelegate{
         guard let vc = storyboard?.instantiateViewController(identifier: "currentCategory") as? CurrentCategoryViewController else{
             return
         }
-        vc.Completion = {arrayTask in
+        vc.сompletion = {arrayTask in
             DispatchQueue.main.async {
-                self.navigationController?.popViewController(animated: true)
+//                self.navigationController?.popViewController(animated: true)
+                
                 self.arrTask = arrayTask
                 self.arrTask.forEach{
                     print($0)
-                    
+
                 }
+                print(self.arrTask)
+//                vc.delegate = self
+                
+//                self.modelsDelegate?.update(array: self.arrTask)
                 self.table.reloadData()
+                self.completion?(self.arrTask)
             }
         }
+        vc.delegate = self
         vc.title = arrCategory[indexPath.section]
         vc.navigationItem.backBarButtonItem?.title = "Категории"
         vc.category = arrCategory[indexPath.section]
@@ -69,6 +81,9 @@ extension CategoryViewController: UITableViewDataSource{
         return cell
     }
     
-
-    
+}
+extension CategoryViewController: TaskDelegate{
+    func updateTask(array: [Task]) {
+        arrTask = array
+    }
 }

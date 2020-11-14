@@ -15,8 +15,8 @@ class CurrentCategoryViewController: UIViewController {
     var arrayTaskCategory = [Task]()
     var indexArr: [Int] = []
     var category = ""
-    public var Completion: (([Task]) -> Void)?
-//    weak var modelsDelegate: ModelsDelegate?
+    public var сompletion: (([Task]) -> Void)?
+    weak var delegate: TaskDelegate?
 
     override func viewDidLoad() {
 //        navigationItem.backBarButtonItem?.title = "Категории"
@@ -54,16 +54,17 @@ extension CurrentCategoryViewController: UITableViewDelegate{
         vc.navigationItem.largeTitleDisplayMode = .never
         vc.completion = {name, category, target, tools, author, date, status in
             DispatchQueue.main.async {
-                self.navigationController?.popViewController(animated: true)
+//                self.navigationController?.popViewController(animated: true)
                 let EditTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
                 print(EditTask.name)
-//                self.modelsDelegate?.update(array: self.arrayTask)
                 self.arrayTask[self.indexArr[indexPath.section]] = EditTask
                 self.arrayTaskCategory[indexPath.section] = EditTask
+//                self.delegate?.updateTask(array: self.arrayTask)
+                print(self.arrayTask[indexPath.section].name)
                 self.table.reloadData()
+                self.сompletion?(self.arrayTask)
             }
         }
-//        print(arrayTask[17].name)
         vc.name = arrayTaskCategory[indexPath.section].name
         vc.category = arrayTaskCategory[indexPath.section].category
         vc.target = arrayTaskCategory[indexPath.section].target

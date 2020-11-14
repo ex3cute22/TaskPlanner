@@ -41,6 +41,8 @@ class ViewController: UIViewController {
 //    private var categoryModels = [Task]() //Массив по выбранным категориям
     private var categoryNames: [String] = []
     private var CategoryUnical: [String] = []
+
+//Для поиска
     private var searchBarIsEmpty: Bool{
         guard let text = search.searchBar.text else {
             return false
@@ -49,8 +51,9 @@ class ViewController: UIViewController {
     }
     
     private var isFiltering: Bool {
-        return search.isActive && !searchBarIsEmpty
+        return search.isActive //&& !searchBarIsEmpty
     }
+    
     var refreshControl = UIRefreshControl() //Обновление таблицы
         
     override func viewDidLoad() {
@@ -81,6 +84,10 @@ class ViewController: UIViewController {
         self.navigationController?.navigationBar.prefersLargeTitles = true
         self.navigationController?.navigationItem.largeTitleDisplayMode = .always
         search.searchResultsUpdater = self
+        search.searchBar.delegate = self
+        search.searchBar.sizeToFit()
+        search.obscuresBackgroundDuringPresentation = false
+        search.searchBar.scopeButtonTitles = ["Все", "Выполнено", "В процессе", "Просрочено"]
         search.searchBar.placeholder = "Поиск"
         self.navigationItem.searchController = search
         definesPresentationContext = true
@@ -109,6 +116,7 @@ class ViewController: UIViewController {
         table.reloadData()
         refreshControl.endRefreshing()
     }
+    
     
 //Добавление новой задачи
     @IBAction func tapAdd(){
@@ -148,7 +156,8 @@ class ViewController: UIViewController {
         vc.completion = {modelsTask in
             DispatchQueue.main.async {
                 self.navigationController?.popViewController(animated: true)
-//                self.models = modelsTask
+                self.models = modelsTask
+                vc.modelsDelegate = self
                 self.table.reloadData()
             }
         }
@@ -243,30 +252,32 @@ extension ViewController: UITableViewDataSource{
             models = change
         }
         change.removeAll()
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: idCell) as! TaskTableViewCell
         var cellTask: Task
+        var date: Date
         
-//        if isFiltering{
-//            cellTask = filteredModels[indexPath.row]
-//        }
-//        else{
-//            cellTask = models[indexPath.row]
-//        }
-        cellTask = models[indexPath.row]
-        let date = models[indexPath.row].date
-        if date < Date(){
-            models[indexPath.row].status = "Просрочено"
+        if isFiltering{
+            cellTask = filteredModels[indexPath.row]
+            date = cellTask.date
         }
+        else{
+            cellTask = models[indexPath.row]
+            date = cellTask.date
+            if date < Date(){
+                models[indexPath.row].status = "Просрочено"
+        }
+        }
+        
         cell.targetLabel?.text = cellTask.target
-//        let status = models[indexPath.row].status
-//        print(status)
-        if models[indexPath.row].status == "Просрочено"{
+
+        if cellTask.status == "Просрочено"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1)
         }
-        else if models[indexPath.row].status == "Выполнено"{
+        else if cellTask.status == "Выполнено"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
         }
-        else if models[indexPath.row].status == "В процессе"{
+        else if cellTask.status == "В процессе"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
         }
         cell.titleLabel?.text =  cellTask.name
@@ -376,15 +387,29 @@ class Task: Codable{ //NSObject, NSCoding,
     }
 
 }
-
+extension ViewController: UISearchBarDelegate{
+    func searchBar(_ searchBar: UISearchBar, selectedScope: Int){
+        filterForSearchText(_searchText: searchBar.text!, scope: searchBar.scopeButtonTitles![selectedScope])
+    }
+}
 extension ViewController: UISearchResultsUpdating{
     func updateSearchResults(for searchController: UISearchController) {
-        filterForSearchText(_searchText: searchController.searchBar.text!)
+        let searchBar = searchController.searchBar
+        let scope = searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex]
+        
+        filterForSearchText(_searchText: searchBar.text!, scope: scope)
+        print(searchController.searchBar.text!)
     }
     
-    func filterForSearchText(_searchText: String){
+    func filterForSearchText(_searchText: String, scope: String = "Все"){
         filteredModels = models.filter({ (model: Task) -> Bool in
-            return model.name.lowercased().contains(_searchText.lowercased())
+            let cur = (scope == "Все") || (model.status == scope)
+            if searchBarIsEmpty{
+                return cur
+            }else{
+                print(model.name.lowercased().contains(_searchText.lowercased()))
+                return cur && model.name.lowercased().contains(_searchText.lowercased())
+            }
         })
         table.reloadData()
     }
@@ -392,6 +417,7 @@ extension ViewController: UISearchResultsUpdating{
 
 extension ViewController: ModelsDelegate{
     func update(array: [Task]) {
+        print(array)
         models = array
     }
 }
