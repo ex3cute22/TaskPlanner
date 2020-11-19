@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="YAf-VI-1AI">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="YAf-VI-1AI">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -101,18 +101,11 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Задачи" badgeValue="0" selectedImage="doc.plaintext.fill" catalog="system" id="pe2-9e-i51"/>
                     <navigationItem key="navigationItem" title="Задачи" id="aZZ-WS-Sgi">
-                        <leftBarButtonItems>
-                            <barButtonItem systemItem="organize" id="EhH-U6-v0G">
-                                <connections>
-                                    <action selector="tapCategory" destination="BYZ-38-t0r" id="aiV-Rx-RxA"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem title="n" id="hSl-XH-dR5">
-                                <connections>
-                                    <action selector="tapCheck" destination="BYZ-38-t0r" id="ki4-OL-Y2c"/>
-                                </connections>
-                            </barButtonItem>
-                        </leftBarButtonItems>
+                        <barButtonItem key="leftBarButtonItem" systemItem="organize" id="EhH-U6-v0G">
+                            <connections>
+                                <action selector="tapCategory" destination="BYZ-38-t0r" id="aiV-Rx-RxA"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="14R-Fn-tEf">
                             <connections>
                                 <action selector="tapAdd" destination="BYZ-38-t0r" id="C1f-4g-x5v"/>
@@ -472,7 +465,6 @@
         <!--Navigation Controller-->
         <scene sceneID="AdU-6h-GjU">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="HX1-9Q-2ut" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="YAf-VI-1AI" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="6OC-3c-Agc">
@@ -487,6 +479,7 @@
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="TbZ-Vq-cxU"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HX1-9Q-2ut" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="34.782608695652179" y="77.678571428571431"/>
         </scene>

@@ -54,6 +54,16 @@ class AddViewController: UIViewController, UITextFieldDelegate, UITextViewDelega
         }
     }
  
+//    func textFieldDidChangeSelection(_ textField: UITextField) {
+//        switch textField{
+//        case nameField: scrollView.setContentOffset(nameField., animated: true)
+//        case categoryField: scrollView.setContentOffset(categoryField.accessibilityActivationPoint, animated: true)
+//        case toolsField: scrollView.setContentOffset(toolsField.accessibilityActivationPoint, animated: true)
+//        case authorField: scrollView.setContentOffset(authorField.accessibilityActivationPoint, animated: true)
+//        default:
+//            print("LOL")
+//        }
+//    }
     //Убирает клавиаутуру после нажатия "Ввод"
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()

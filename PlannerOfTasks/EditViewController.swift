@@ -40,6 +40,20 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var author: String = ""
     var date: Date = Date()
     var status: String = ""
+//    var arrReason: [ReasonTask]{
+//        get{
+//            if let data = UserDefaults.standard.value(forKey: "ReasonDataKy") as? Data{
+//                return try! PropertyListDecoder().decode([ReasonTask].self, from: data)
+//            }else{
+//                return [ReasonTask]()
+//            }
+//        }
+//        set{
+//            if let data = try? PropertyListEncoder().encode(newValue){
+//                UserDefaults.standard.set(data, forKey: "ReasonDataKey")
+//            }
+//        }
+//    }
     
     public var completion: ((String, String, String, String, String, Date, String) -> Void)?
     
@@ -112,3 +126,13 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     
 
 }
+
+//class ReasonTask: Codable{
+//    var reason: String
+//    var identifier: String
+//
+//    init(reason: String = "", identifier: String){
+//        self.reason = reason
+//        self.identifier = identifier
+//    }
+//}

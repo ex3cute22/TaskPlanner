@@ -38,7 +38,6 @@ class ViewController: UIViewController {
     }
     var change = [Task]() //Массив изменений основного массива models
     private var filteredModels = [Task]() //Массив отфильтрованный по поиску
-//    private var categoryModels = [Task]() //Массив по выбранным категориям
     private var categoryNames: [String] = []
     private var CategoryUnical: [String] = []
 
@@ -72,6 +71,13 @@ class ViewController: UIViewController {
             print($0.status)
         }
         models = change
+        //проверка прихода уведомлений(только для активных задач)
+        models.forEach {
+            if $0.status == "Просрочено" || $0.status == "Выполнено"{
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [$0.identifier])
+            }
+        }
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["ID_Насрать в штаны2020-11-19 13:46:00+0000"])
         //заполнение массива категорий
         models.forEach {
             categoryNames.append($0.category)
@@ -128,22 +134,29 @@ class ViewController: UIViewController {
         vc.completion = { name, category, target, tools, author, date, status in
                 DispatchQueue.main.async {
                     self.navigationController?.popToRootViewController(animated: true)
-                    let newTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date))")
+                    let newTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
                     self.models.insert(newTask, at: 0)
                     self.table.reloadData()
+                    if status == "В процессе"{
+                    let dateCurrent = Date()
+                    let diffDate = (date.timeIntervalSince(dateCurrent)) / 60 / 60 / 24
+                    let roundDiffDate = Int(round(diffDate))
                     let content = UNMutableNotificationContent()
                     content.title = name
                     content.sound = .default
-                    content.body = target
-
-                    let targetDate = date
-                    let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: targetDate), repeats: false)
-                    let request = UNNotificationRequest(identifier: "ID_\(name)\(date))", content: content, trigger: trigger)
+                        let format = DateFormatter()
+                        format.locale = Locale(identifier: "ru_RU")
+                        format.dateFormat = "dd MMMM YYYY"
+                    //content.body = "Осталось дней: \(roundDiffDate)\n" + target
+                        content.body = "Дата выполнения: \(format.string(from: date))"
+                    let repeatDate = roundDiffDate * 60 * 60 * 24 / 3
+                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(repeatDate), repeats: true)
+                    let request = UNNotificationRequest(identifier: "ID_\(name)\(date)", content: content, trigger: trigger)
                     UNUserNotificationCenter.current().add(request, withCompletionHandler: {error in
                         if error != nil{
 
                         }
-                    })
+                    })}
                 }
             }
         navigationController?.pushViewController(vc, animated: true)
@@ -210,14 +223,38 @@ extension ViewController: UITableViewDelegate{
         vc.completion = {name, category, target, tools, author, date, status in
             DispatchQueue.main.async {
                 self.navigationController?.popToRootViewController(animated: true)
+                let oldID = self.models[indexPath.row].identifier
                 let EditTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
                 self.models[indexPath.row] = EditTask
                 self.table.reloadData()
+                if status == "В процессе"{
+                let center = UNUserNotificationCenter.current()
+                //Удаление предыдущего графика прихода уведомлений
+                center.removePendingNotificationRequests(withIdentifiers: [oldID])
+                //Создание графика прихода уведомлений по новой дате выполнения
+                let dateCurrent = Date()
+                let diffDate = (date.timeIntervalSince(dateCurrent)) / 60 / 60 / 24
+                let roundDiffDate = Int(round(diffDate))
+                let content = UNMutableNotificationContent()
+                content.title = name
+                content.sound = .default
+                    let format = DateFormatter()
+                    format.locale = Locale(identifier: "ru_RU")
+                    format.dateFormat = "dd MMMM YYYY"
+                //content.body = "Осталось дней: \(roundDiffDate)\n" + target
+                    content.body = "Дата выполнения: \(format.string(from: date))"
+                let repeatDate = roundDiffDate * 60 * 60 * 24 / 3
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(repeatDate), repeats: true)
+//                    let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: targetDate), repeats: false)
+                let request = UNNotificationRequest(identifier: "ID_\(name)\(date)", content: content, trigger: trigger)
+                UNUserNotificationCenter.current().add(request, withCompletionHandler: {error in
+                    if error != nil{
+
+                    }
+                })
+                }
             }
         }
-//        if models[indexPath.row].date < Date(){
-//            models[indexPath.row].status = "Просрочено"
-//        }
         vc.name = models[indexPath.row].name
         vc.category = models[indexPath.row].category
         vc.target = models[indexPath.row].target
@@ -342,6 +379,7 @@ extension ViewController: UITableViewDataSource{
                 alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { (action) in
                     self.models.remove(at: indexPath.row)
                     self.table.reloadData()
+                    UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.models[indexPath.row].identifier])
                 })
                 alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
                 self.present(alert, animated: true, completion: nil)
@@ -374,6 +412,7 @@ class Task: Codable{ //NSObject, NSCoding,
     var date: Date //дата выполнения
     var status: String //статус выполнения
     var identifier: String //идентификатор задачи
+//    var reason: String
      
     init(name: String, category: String, target: String, tools: String, author: String, date: Date, status: String, identifier: String){
         self.name = name
@@ -384,6 +423,7 @@ class Task: Codable{ //NSObject, NSCoding,
         self.date = date
         self.status = status
         self.identifier = identifier
+//        self.reason = ""
     }
 
 }
