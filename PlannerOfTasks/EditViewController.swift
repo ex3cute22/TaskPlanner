@@ -16,15 +16,17 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     @IBOutlet var toolsField: UITextField!
     @IBOutlet var authorField: UITextField!
     @IBOutlet var datePicker: UIDatePicker!
-    @IBOutlet var statusSwitch: UISwitch!
+    @IBOutlet var reasonView: UITextView!
     @IBOutlet weak var buttonUnlock: UIButton!
     @IBOutlet weak var statusControl: UISegmentedControl!
+    @IBOutlet weak var view1: UIView!
     
     @IBAction func buttonLock(_ sender: UIButton) {
         nameField.isEnabled = true
         categoryField.isEnabled = true
         targetView.isSelectable = true
         targetView.isEditable = true
+        reasonView.isEditable = true
         toolsField.isEnabled = true
         authorField.isEnabled = true
         statusControl.isEnabled = true
@@ -33,6 +35,21 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         sender.isHidden = true
     }
     
+    @IBAction func tap(_ sender: UIPanGestureRecognizer) {
+        if nameField.isSelected{
+            nameField.resignFirstResponder()}
+        if categoryField.isSelected{
+            categoryField.resignFirstResponder()}
+        if targetView.isSelectable{
+            targetView.resignFirstResponder()}
+        if toolsField.isSelected{
+            toolsField.resignFirstResponder()}
+        if authorField.isSelected{
+            authorField.resignFirstResponder()}
+        if reasonView.isSelectable{
+            reasonView.resignFirstResponder()}
+
+    }
     var name: String = ""
     var category: String = ""
     var target: String = ""
@@ -40,20 +57,7 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var author: String = ""
     var date: Date = Date()
     var status: String = ""
-//    var arrReason: [ReasonTask]{
-//        get{
-//            if let data = UserDefaults.standard.value(forKey: "ReasonDataKy") as? Data{
-//                return try! PropertyListDecoder().decode([ReasonTask].self, from: data)
-//            }else{
-//                return [ReasonTask]()
-//            }
-//        }
-//        set{
-//            if let data = try? PropertyListEncoder().encode(newValue){
-//                UserDefaults.standard.set(data, forKey: "ReasonDataKey")
-//            }
-//        }
-//    }
+
     
     public var completion: ((String, String, String, String, String, Date, String) -> Void)?
     
@@ -65,6 +69,7 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         toolsField.text = tools
         authorField.text = author
         datePicker.date = date
+        //view.addSubview()
         
         let dateCurrent = Date()
         let diffDate = (date.timeIntervalSince(dateCurrent)) / 60 / 60 / 24
@@ -83,6 +88,14 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         }
         if status == "Выполнено"{
             statusControl.selectedSegmentIndex = 0
+//            for constraint in self.view1.constraints{
+//                if constraint.identifier == "myConstraints"{
+//                    constraint.constant = 0
+//                }
+//            }
+//            reasonView.isHidden = true
+//             view1.updateConstraints()
+//             view1.layoutIfNeeded()
         }
         else if status == "В процессе"{
             statusControl.selectedSegmentIndex = 1
@@ -96,6 +109,13 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     @IBAction func didChangeSegment(_ sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0{
             status = "Выполнено"
+//            reasonView.text
+//            for constraint in self.view.constraints{
+//                if constraint.identifier == "downConstraint"{
+//                    constraint.constant = 0
+//                }
+//            }
+            reasonView.isHidden = true
         }
         else if sender.selectedSegmentIndex == 1{
             status = "В процессе"
@@ -127,12 +147,3 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
 
 }
 
-//class ReasonTask: Codable{
-//    var reason: String
-//    var identifier: String
-//
-//    init(reason: String = "", identifier: String){
-//        self.reason = reason
-//        self.identifier = identifier
-//    }
-//}

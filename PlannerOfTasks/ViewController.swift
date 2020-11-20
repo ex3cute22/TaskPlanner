@@ -18,7 +18,11 @@ class ViewController: UIViewController {
     @IBOutlet var bar: UITabBarItem!
     
     let search = UISearchController(searchResultsController: nil) //поиск по названию
-    
+        
+    @IBAction func scrollTap(_ sender: UISwipeGestureRecognizer) {
+            search.resignFirstResponder()
+            print("lol")
+    }
     let idCell = "idCell" //id кастомной ячейки
     
 //Массив задач
@@ -72,12 +76,14 @@ class ViewController: UIViewController {
         }
         models = change
         //проверка прихода уведомлений(только для активных задач)
+//        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         models.forEach {
             if $0.status == "Просрочено" || $0.status == "Выполнено"{
                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [$0.identifier])
             }
         }
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["ID_Насрать в штаны2020-11-19 13:46:00+0000"])
+//        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["ID_Насрать в штаны2020-11-19 13:46:00 +0000"])
+//        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["ID_Удалил для проверки20 ноября 2020"])
         //заполнение массива категорий
         models.forEach {
             categoryNames.append($0.category)
@@ -92,6 +98,7 @@ class ViewController: UIViewController {
         search.searchResultsUpdater = self
         search.searchBar.delegate = self
         search.searchBar.sizeToFit()
+        search.searchBar.setValue("Отмена", forKey: "cancelButtonText")
         search.obscuresBackgroundDuringPresentation = false
         search.searchBar.scopeButtonTitles = ["Все", "Выполнено", "В процессе", "Просрочено"]
         search.searchBar.placeholder = "Поиск"
@@ -144,14 +151,15 @@ class ViewController: UIViewController {
                     let content = UNMutableNotificationContent()
                     content.title = name
                     content.sound = .default
+                        let currentIdentifier = "ID_\(name)\(date)"
                         let format = DateFormatter()
                         format.locale = Locale(identifier: "ru_RU")
                         format.dateFormat = "dd MMMM YYYY"
                     //content.body = "Осталось дней: \(roundDiffDate)\n" + target
-                        content.body = "Дата выполнения: \(format.string(from: date))"
+                        content.body = "Дата выполнения: \(format.string(from: date))\n" + target
                     let repeatDate = roundDiffDate * 60 * 60 * 24 / 3
                     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(repeatDate), repeats: true)
-                    let request = UNNotificationRequest(identifier: "ID_\(name)\(date)", content: content, trigger: trigger)
+                    let request = UNNotificationRequest(identifier: currentIdentifier, content: content, trigger: trigger)
                     UNUserNotificationCenter.current().add(request, withCompletionHandler: {error in
                         if error != nil{
 
@@ -224,29 +232,30 @@ extension ViewController: UITableViewDelegate{
             DispatchQueue.main.async {
                 self.navigationController?.popToRootViewController(animated: true)
                 let oldID = self.models[indexPath.row].identifier
+                //Удаление предыдущего графика прихода уведомлений
+                let center = UNUserNotificationCenter.current()
+                center.removePendingNotificationRequests(withIdentifiers: [oldID])
                 let EditTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
                 self.models[indexPath.row] = EditTask
                 self.table.reloadData()
                 if status == "В процессе"{
-                let center = UNUserNotificationCenter.current()
-                //Удаление предыдущего графика прихода уведомлений
-                center.removePendingNotificationRequests(withIdentifiers: [oldID])
                 //Создание графика прихода уведомлений по новой дате выполнения
                 let dateCurrent = Date()
                 let diffDate = (date.timeIntervalSince(dateCurrent)) / 60 / 60 / 24
                 let roundDiffDate = Int(round(diffDate))
                 let content = UNMutableNotificationContent()
+                let currentIdentifier = "ID_\(name)\(date)"
                 content.title = name
                 content.sound = .default
                     let format = DateFormatter()
                     format.locale = Locale(identifier: "ru_RU")
                     format.dateFormat = "dd MMMM YYYY"
                 //content.body = "Осталось дней: \(roundDiffDate)\n" + target
-                    content.body = "Дата выполнения: \(format.string(from: date))"
+                    content.body = "Дата выполнения: \(format.string(from: date))\n" + target
                 let repeatDate = roundDiffDate * 60 * 60 * 24 / 3
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(repeatDate), repeats: true)
 //                    let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: targetDate), repeats: false)
-                let request = UNNotificationRequest(identifier: "ID_\(name)\(date)", content: content, trigger: trigger)
+                let request = UNNotificationRequest(identifier: currentIdentifier, content: content, trigger: trigger)
                 UNUserNotificationCenter.current().add(request, withCompletionHandler: {error in
                     if error != nil{
 
@@ -289,6 +298,12 @@ extension ViewController: UITableViewDataSource{
             models = change
         }
         change.removeAll()
+        
+        models.forEach {
+            if $0.status == "Просрочено" || $0.status == "Выполнено"{
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [$0.identifier])
+            }
+        }
         
         let cell = tableView.dequeueReusableCell(withIdentifier: idCell) as! TaskTableViewCell
         var cellTask: Task
@@ -377,9 +392,11 @@ extension ViewController: UITableViewDataSource{
             let swipeDelete = UIContextualAction(style: .destructive, title: "Удалить"){(action, view, success) in
                 let alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите удалить данную задачу?", preferredStyle: .actionSheet)
                 alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { (action) in
+                    let deleteNotif = self.models[indexPath.row].identifier
+                    print(deleteNotif)
+                    UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.models[indexPath.row].identifier])
                     self.models.remove(at: indexPath.row)
                     self.table.reloadData()
-                    UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.models[indexPath.row].identifier])
                 })
                 alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
                 self.present(alert, animated: true, completion: nil)
@@ -423,7 +440,7 @@ class Task: Codable{ //NSObject, NSCoding,
         self.date = date
         self.status = status
         self.identifier = identifier
-//        self.reason = ""
+//        self.reason = reason
     }
 
 }
