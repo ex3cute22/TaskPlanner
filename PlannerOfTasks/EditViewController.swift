@@ -16,8 +16,6 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     @IBOutlet var toolsField: UITextField!
     @IBOutlet var authorField: UITextField!
     @IBOutlet var datePicker: UIDatePicker!
-    @IBOutlet var reasonView: UITextView!
-    @IBOutlet var labelReason: UILabel!
     @IBOutlet weak var buttonUnlock: UIButton!
     @IBOutlet weak var statusControl: UISegmentedControl!
     
@@ -26,7 +24,6 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         categoryField.isEnabled = true
         targetView.isSelectable = true
         targetView.isEditable = true
-        reasonView.isEditable = true
         toolsField.isEnabled = true
         authorField.isEnabled = true
         statusControl.isEnabled = true

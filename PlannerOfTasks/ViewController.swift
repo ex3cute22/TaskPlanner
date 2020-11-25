@@ -235,7 +235,8 @@ extension ViewController: UITableViewDelegate{
                 center.removePendingNotificationRequests(withIdentifiers: [oldID])
                 let EditTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
                 self.models[indexModels] = EditTask
-                self.filteredModels[indexPath.row] = EditTask
+                if !self.filteredModels.isEmpty{
+                    self.filteredModels[indexPath.row] = EditTask}
                 self.table.reloadData()
                 if status == "В процессе"{
                 //Создание графика прихода уведомлений по новой дате выполнения
