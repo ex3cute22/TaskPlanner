@@ -17,9 +17,9 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     @IBOutlet var authorField: UITextField!
     @IBOutlet var datePicker: UIDatePicker!
     @IBOutlet var reasonView: UITextView!
+    @IBOutlet var labelReason: UILabel!
     @IBOutlet weak var buttonUnlock: UIButton!
     @IBOutlet weak var statusControl: UISegmentedControl!
-    @IBOutlet weak var view1: UIView!
     
     @IBAction func buttonLock(_ sender: UIButton) {
         nameField.isEnabled = true
@@ -35,21 +35,21 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         sender.isHidden = true
     }
     
-    @IBAction func tap(_ sender: UIPanGestureRecognizer) {
-        if nameField.isSelected{
-            nameField.resignFirstResponder()}
-        if categoryField.isSelected{
-            categoryField.resignFirstResponder()}
-        if targetView.isSelectable{
-            targetView.resignFirstResponder()}
-        if toolsField.isSelected{
-            toolsField.resignFirstResponder()}
-        if authorField.isSelected{
-            authorField.resignFirstResponder()}
-        if reasonView.isSelectable{
-            reasonView.resignFirstResponder()}
-
-    }
+//    @IBAction func tap(_ sender: UIPanGestureRecognizer) {
+//        if nameField.isSelected{
+//            nameField.resignFirstResponder()}
+//        if categoryField.isSelected{
+//            categoryField.resignFirstResponder()}
+//        if targetView.isSelectable{
+//            targetView.resignFirstResponder()}
+//        if toolsField.isSelected{
+//            toolsField.resignFirstResponder()}
+//        if authorField.isSelected{
+//            authorField.resignFirstResponder()}
+//        if reasonView.isSelectable{
+//            reasonView.resignFirstResponder()}
+//
+//    }
     var name: String = ""
     var category: String = ""
     var target: String = ""
@@ -57,12 +57,16 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var author: String = ""
     var date: Date = Date()
     var status: String = ""
-
+    var reason: String = ""
     
     public var completion: ((String, String, String, String, String, Date, String) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        nameField.delegate = self
+        categoryField.delegate = self
+        toolsField.delegate = self
+        authorField.delegate = self
         nameField.text = name
         categoryField.text = category
         targetView.text = target
@@ -88,20 +92,15 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         }
         if status == "Выполнено"{
             statusControl.selectedSegmentIndex = 0
-//            for constraint in self.view1.constraints{
-//                if constraint.identifier == "myConstraints"{
-//                    constraint.constant = 0
-//                }
-//            }
-//            reasonView.isHidden = true
-//             view1.updateConstraints()
-//             view1.layoutIfNeeded()
+//            removeReason()
         }
         else if status == "В процессе"{
             statusControl.selectedSegmentIndex = 1
+//            removeReason()
         }
         else if status == "Просрочено"{
             statusControl.selectedSegmentIndex = 2
+//            getReason()
         }
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Сохранить",style: .done, target: self, action: #selector(saveTask))
     }
@@ -109,19 +108,15 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     @IBAction func didChangeSegment(_ sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0{
             status = "Выполнено"
-//            reasonView.text
-//            for constraint in self.view.constraints{
-//                if constraint.identifier == "downConstraint"{
-//                    constraint.constant = 0
-//                }
-//            }
-            reasonView.isHidden = true
+//            removeReason()
         }
         else if sender.selectedSegmentIndex == 1{
             status = "В процессе"
+//            removeReason()
         }
         else if sender.selectedSegmentIndex == 2{
             status = "Просрочено"
+//            getReason()
         }
     }
     
@@ -143,7 +138,96 @@ class EditViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         }
     }
     
-    
+    //Убирает клавиаутуру после нажатия "Ввод"
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+//    //Скрывает поле для ввода причины (Статус "Выполнено" или "В процессе")
+//    func removeReason(){
+//        for constraint in self.reasonView.constraints{
+//            if constraint.identifier == "myConstraints20" || constraint.identifier == "myConstraints40"  || constraint.identifier == "myConstraints115" {
+//                constraint.constant = 0
+////                constraint.priority = UILayoutPriority(rawValue: 750)
+//            }
+//        }
+//        reasonView.isHidden = true
+//        reasonView.isEditable = false
+//        labelReason.updateConstraints()
+//        labelReason.layoutIfNeeded()
+//    for constraint in self.labelReason.constraints{
+//        if constraint.identifier == "myConstraints20" || constraint.identifier == "myConstraints40" || constraint.identifier == "myConstraints24"  {
+//                constraint.constant = 0
+////                constraint.priority = UILayoutPriority(rawValue: 750)
+//
+//        }
+//    }
+//        labelReason.isHidden = true
+//        labelReason.updateConstraints()
+//        labelReason.layoutIfNeeded()
+//
+//        for constraint in self.statusControl.constraints{
+//            if constraint.identifier == "myConstraints239"{
+////                constraint.priority = UILayoutPriority(rawValue: 1250)
+//                constraint.constant = 40
+//            }
+//        }
+//        statusControl.updateConstraints()
+//        statusControl.layoutIfNeeded()
+//    }
+//    //Показывает поле для ввода причины (Статус "Просрочено")
+//    func getReason(){
+//        for constraint in self.labelReason.constraints{
+//            if constraint.identifier == "myConstraints20"{
+//                constraint.constant = 20
+////                constraint.priority = UILayoutPriority(rawValue: 1000)
+//            }
+//            if constraint.identifier == "myConstraints40"{
+//                constraint.constant = 40
+////                constraint.priority = UILayoutPriority(rawValue: 1000)
+//
+//            }
+//            if constraint.identifier == "myConstraints24"{
+//                constraint.constant = 24
+////                constraint.priority = UILayoutPriority(rawValue: 1000)
+//            }
+//        }
+//        labelReason.isHidden = false
+//        labelReason.updateConstraints()
+//        labelReason.layoutIfNeeded()
+//
+//        for constraint in self.reasonView.constraints{
+//            if constraint.identifier == "myConstraints20"{
+//                constraint.constant = 20
+////                constraint.priority = UILayoutPriority(rawValue: 1000)
+//
+//            }
+//            if constraint.identifier == "myConstraints40"{
+//                constraint.constant = 40
+////                constraint.priority = UILayoutPriority(rawValue: 1000)
+//
+//            }
+//            if constraint.identifier == "myConstraints115"{
+//                constraint.constant = 115
+////                constraint.priority = UILayoutPriority(rawValue: 1000)
+//
+//            }
+//        }
+//        reasonView.isHidden = false
+//        labelReason.updateConstraints()
+//        labelReason.layoutIfNeeded()
+////
+////        for constraint in self.statusControl.constraints{
+////            if constraint.identifier == "myConstraints239"{
+////                constraint.constant = 239
+////            }
+////        }
+////        statusControl.updateConstraints()
+////        statusControl.layoutIfNeeded()
+//
+//    }
 
 }
+
+
 

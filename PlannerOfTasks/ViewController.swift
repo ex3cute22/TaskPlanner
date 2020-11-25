@@ -21,7 +21,6 @@ class ViewController: UIViewController {
         
     @IBAction func scrollTap(_ sender: UISwipeGestureRecognizer) {
             search.resignFirstResponder()
-            print("lol")
     }
     let idCell = "idCell" //id кастомной ячейки
     
@@ -72,18 +71,15 @@ class ViewController: UIViewController {
                 $0.status = "Просрочено"
             }
             change.append($0)
-            print($0.status)
         }
         models = change
         //проверка прихода уведомлений(только для активных задач)
 //        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        models.forEach {
-            if $0.status == "Просрочено" || $0.status == "Выполнено"{
-                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [$0.identifier])
-            }
-        }
-//        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["ID_Насрать в штаны2020-11-19 13:46:00 +0000"])
-//        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["ID_Удалил для проверки20 ноября 2020"])
+//        models.forEach {
+//            if $0.status == "Просрочено" || $0.status == "Выполнено"{
+//                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [$0.identifier])
+//            }
+//        }
         //заполнение массива категорий
         models.forEach {
             categoryNames.append($0.category)
@@ -224,6 +220,8 @@ extension ViewController: UITableViewDelegate{
 //Нажатие на cell (Открытие режима отслеживания статуса задачи)
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         table.deselectRow(at: indexPath, animated: true)
+        var array: Task
+        var indexModels: Int = 0
         guard let vc = storyboard?.instantiateViewController(identifier: "edit") as? EditViewController else {
             return
         }
@@ -231,12 +229,13 @@ extension ViewController: UITableViewDelegate{
         vc.completion = {name, category, target, tools, author, date, status in
             DispatchQueue.main.async {
                 self.navigationController?.popToRootViewController(animated: true)
-                let oldID = self.models[indexPath.row].identifier
+                let oldID = self.models[indexModels].identifier
                 //Удаление предыдущего графика прихода уведомлений
                 let center = UNUserNotificationCenter.current()
                 center.removePendingNotificationRequests(withIdentifiers: [oldID])
                 let EditTask = Task(name: name, category: category, target: target, tools: tools, author: author, date: date, status: status, identifier: "ID_\(name)\(date)")
-                self.models[indexPath.row] = EditTask
+                self.models[indexModels] = EditTask
+                self.filteredModels[indexPath.row] = EditTask
                 self.table.reloadData()
                 if status == "В процессе"{
                 //Создание графика прихода уведомлений по новой дате выполнения
@@ -264,14 +263,28 @@ extension ViewController: UITableViewDelegate{
                 }
             }
         }
-        vc.name = models[indexPath.row].name
-        vc.category = models[indexPath.row].category
-        vc.target = models[indexPath.row].target
-        vc.tools = models[indexPath.row].tools
-        vc.author = models[indexPath.row].author
-        vc.date = models[indexPath.row].date
-        vc.status = models[indexPath.row].status
-        print(models[indexPath.row].status)
+        if isFiltering{
+            array = filteredModels[indexPath.row]
+        }
+        else {
+            array = models[indexPath.row]
+        }
+//        models.index(filteredModels[indexPath.row].name)
+//        models.index(of: filteredModels[indexPath.row])
+        for i in 0...models.count-1{
+            if (models[i].name == array.name && models[i].category == array.category && models[i].target == array.target && models[i].tools == array.tools && models[i].author == array.author && models[i].identifier == array.identifier){
+                indexModels = i
+            }
+        }
+        print(indexModels)
+        vc.name = array.name
+        vc.category = array.category
+        vc.target = array.target
+        vc.tools = array.tools
+        vc.author = array.author
+        vc.date = array.date
+        vc.status = array.status
+        print(array.status)
         navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -299,12 +312,6 @@ extension ViewController: UITableViewDataSource{
         }
         change.removeAll()
         
-        models.forEach {
-            if $0.status == "Просрочено" || $0.status == "Выполнено"{
-                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [$0.identifier])
-            }
-        }
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: idCell) as! TaskTableViewCell
         var cellTask: Task
         var date: Date
@@ -325,9 +332,11 @@ extension ViewController: UITableViewDataSource{
 
         if cellTask.status == "Просрочено"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1)
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [cellTask.identifier])
         }
         else if cellTask.status == "Выполнено"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [cellTask.identifier])
         }
         else if cellTask.status == "В процессе"{
             cell.statusView?.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
@@ -364,10 +373,8 @@ extension ViewController: UITableViewDataSource{
                     status = "В процессе"
                     alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите продолжить выполнение задачи?", preferredStyle: .actionSheet)
                     alert.addAction(UIAlertAction(title: "Продолжить", style: .default) { (action) in
-                        print(status)
                         self.change = self.models
                         self.change[indexPath.row].status = status
-                        print(self.change[indexPath.row].status)
                         self.table.reloadData()
                     })
                 }
@@ -392,8 +399,6 @@ extension ViewController: UITableViewDataSource{
             let swipeDelete = UIContextualAction(style: .destructive, title: "Удалить"){(action, view, success) in
                 let alert = UIAlertController(title: "Внимание", message: "Вы уверены, что хотите удалить данную задачу?", preferredStyle: .actionSheet)
                 alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { (action) in
-                    let deleteNotif = self.models[indexPath.row].identifier
-                    print(deleteNotif)
                     UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.models[indexPath.row].identifier])
                     self.models.remove(at: indexPath.row)
                     self.table.reloadData()
