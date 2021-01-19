@@ -250,7 +250,6 @@ extension ViewController: UITableViewDelegate{
                     let format = DateFormatter()
                     format.locale = Locale(identifier: "ru_RU")
                     format.dateFormat = "dd MMMM YYYY"
-                //content.body = "Осталось дней: \(roundDiffDate)\n" + target
                     content.body = "Дата выполнения: \(format.string(from: date))\n" + target
                 let repeatDate = roundDiffDate * 60 * 60 * 24 / 3
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(repeatDate), repeats: true)
