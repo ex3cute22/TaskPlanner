@@ -73,13 +73,7 @@ class ViewController: UIViewController {
             change.append($0)
         }
         models = change
-        //проверка прихода уведомлений(только для активных задач)
-//        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-//        models.forEach {
-//            if $0.status == "Просрочено" || $0.status == "Выполнено"{
-//                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [$0.identifier])
-//            }
-//        }
+
         //заполнение массива категорий
         models.forEach {
             categoryNames.append($0.category)
