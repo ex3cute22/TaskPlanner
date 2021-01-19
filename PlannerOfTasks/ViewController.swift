@@ -408,14 +408,6 @@ extension ViewController: UITableViewDataSource{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 75.0
     }
-    
- 
-//    override func viewDidAppear(_ animated: Bool) {
-//            let navigationBar = self.navigationController?.navigationBar
-//            navigationBar?.barTintColor = UIColor.systemBlue
-//            navigationBar?.tintColor = UIColor.white
-//    }
-
 }
 
 //Класс Task
